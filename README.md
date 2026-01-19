@@ -1,63 +1,70 @@
-# HARDLINT ULTIMATE (V2) 🕵️‍♂️
+# HARDLINT V3 (9.5 EDITION) 🕵️‍♂️👻
 
-**HARDLINT** is a professional-grade, modular OSINT (Open Source Intelligence) framework designed for researchers, penetration testers, and privacy enthusiasts. It aggregates data from over 100+ public sources to build comprehensive digital profiles.
+**HARDLINT** is a professional-grade, modular OSINT framework designed for researchers and penetration testers. Version 3 introduces advanced anonymity layers ("Ghost Mode"), active network reconnaissance, and media forensics.
 
-![Hardlint Logo](https://via.placeholder.com/800x200?text=HARDLINT+ULTIMATE+V2)
+![Hardlint Logo](https://via.placeholder.com/800x200?text=HARDLINT+V3+GHOST)
 
-## 🚀 New V2 Features
+## 🌟 New V3 "God Mode" Features
 
-### 🌐 Domain & Network OSINT
-- **Massive Domain Analysis**: WHOIS data, DNS record dumps (A, MX, TXT, etc.), and Technology Stack detection (CMS, Server).
-- **Subdomain Scanner**: Passive enumeration using transparency logs (Certificate Transparency).
-- **IP Geolocation**: Pinpoint location with Country, City, ISP, and Google Maps integration.
-- **MAC Lookup**: Identify device manufacturers from MAC addresses.
+### 👻 Ghost Mode (Anonymity)
+- **Tor Proxying**: Routes all traffic through a local Tor SOCKS5 proxy (default: 127.0.0.1:9050).
+- **Random User-Agent**: Automatically rotates browser identities to bypass blocking and evade detection.
+- **Toggle Command**: Access via `ghost` command inside the tool.
 
-### 🕵️‍♂️ Identity & Social
-- **Username Search (Turbo)**: Multi-threaded scanning of **100+ social networks** (TikTok, GitHub, Tinder, Roblox, etc.) in seconds.
-- **Reverse Image Search**: Generates direct deep-links for Google Lens, Yandex, TinEye, and Bing Visual Search.
-- **Email Forensics**: Automatic Gravatar detection and specialized Google Dorks for manual breach/leak discovery.
+### 🖼️ Media Forensics
+- **EXIF Extraction**: Extracts hidden metadata from images (GPS coordinates, Camera model, Timestamp).
+- **OCR (Optical Character Recognition)**: Reads and extracts text active inside images (requires `tesseract-ocr`).
 
-### 💰 Financial & Physical Assets
-- **Crypto Analysis**: Check Bitcoin (BTC) and Ethereum (ETH) wallet balances, transaction counts, and total received funds.
-- **Vehicle Intelligence**: Decode VIN numbers to reveal Make, Model, Year, Plant City, and Engine specs.
+### 🛰️ Active Network Discovery
+- **Port Scanner**: Checks target servers for open services (FTP, SSH, HTTP, RDP, etc.).
+- **WiFi BSSID Tracker**: Geolocates a router significantly using its BSSID (MAC address).
 
-## 🛠️ Installation
+---
+
+## 🚀 Installation
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/hardlint.git
+   git clone https://github.com/itanbeluli12-debug/hardlint.git
    cd hardlint
    ```
 
-2. **Install dependencies:**
+2. **Set up Virtual Environment (Recommended):**
    ```bash
-   pip install -r requirements.txt
+   python3 -m venv venv
+   source venv/bin/activate
    ```
 
-3. **Run the tool:**
+3. **Install dependencies:**
    ```bash
-   python hardlint.py
+   ./venv/bin/pip install -r requirements.txt
+   ```
+
+2. **System Requirements (V3):**
+   - **Tor**: Required for Ghost Mode (`sudo apt install tor` -> `sudo service tor start`).
+   - **Tesseract**: Required for OCR (`sudo apt install tesseract-ocr`).
+
+3. **Run:**
+   ```bash
+   ./venv/bin/python hardlint.py
    ```
 
 ## 📖 Command Reference
 
-Once started, use the following interactive commands:
-
-| Domain | Command | Description |
+| Module | Command | Description |
 | :--- | :--- | :--- |
-| **Identity** | `search <<username "name"` | Search 100+ sites for username. |
-| | `search <<email "addr"` | Analyze email for leaks & profile pics. |
-| | `search <<number "num"` | Reverse phone number lookup. |
-| | `search <<image "url"` | Reverse image search links. |
-| **Network** | `search <<ip "1.2.3.4"` | Geolocate IP address. |
-| | `search <<mac "00:11..."` | Lookup MAC address vendor. |
-| | `search <<domain "site.com"` | WHOIS, DNS, & Subdomains. |
-| **Assets** | `search <<crypto "addr"` | Check Crypto Wallet balance. |
-| | `search <<vin "1HG..."` | Decode Vehicle VIN. |
-| **Misc** | `search <<leak "query"` | Search for password leaks/pastes. |
+| **Anonymity** | `ghost` | **Toggle Ghost Mode** (ON/OFF). |
+| **Identity** | `search <<username "name"` | Search 100+ sites. |
+| | `search <<email "addr"` | Email analysis & Dorks. |
+| | `search <<number "num"` | Reverse phone lookup. |
+| **Media** | `search <<exif "url"` | **[NEW]** Extract GPS/EXIF data. |
+| | `search <<ocr "url"` | **[NEW]** Extract text from image. |
+| **Network** | `search <<scan "target"` | **[NEW]** Port Scanner. |
+| | `search <<wifi "bssid"` | **[NEW]** WiFi Geolocation. |
+| | `search <<ip "addr"` | IP Geolocation. |
+| **Assets** | `search <<crypto "addr"` | Crypto Wallet Check. |
+| | `search <<vin "vin"` | Vehicle VIN Decoder. |
+| **Leaks** | `search <<leak "query"` | Search for leaks/pastes. |
 
 ## 🛡️ Privacy & Ethics
-This tool is for **educational and research purposes only**. Always respect local laws and the privacy of others. The developer is not responsible for any misuse of this tool.
-
----
-*Made with ❤️ for the OSINT community.*
+This tool is for **educational purposes only**. The use of "Active" scanning features (Port Scan) against unauthorized targets may be illegal. Always have permission before scanning.

@@ -5,3 +5,6 @@ python-whois
 dnspython
 beautifulsoup4
 fake-useragent
+pillow
+pytesseract
+requests[socks]
