@@ -1,0 +1,21 @@
+{
+    "usernames": {},
+    "emails": {
+        "bootydevils1@gmail.com": {
+            "email": "bootydevils1@gmail.com",
+            "gravatar": null,
+            "dorks": [
+                "https://www.google.com/search?q=site:pastebin.com+%22bootydevils1@gmail.com%22",
+                "https://www.google.com/search?q=site:linkedin.com+%22bootydevils1@gmail.com%22",
+                "https://www.google.com/search?q=intext:%22bootydevils1@gmail.com%22+filetype:txt",
+                "https://www.google.com/search?q=intext:%22bootydevils1@gmail.com%22+(password+|+pass+|+pwd)",
+                "https://www.google.com/search?q=site:github.com+%22bootydevils1@gmail.com%22"
+            ]
+        }
+    },
+    "phones": {},
+    "images": [],
+    "crypto": [],
+    "domains": [],
+    "darkweb": []
+}

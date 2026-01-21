@@ -1,25 +1,25 @@
-import requests
-import time
+import aiohttp
+import asyncio
 import hashlib
 import concurrent.futures
 import phonenumbers
 from phonenumbers import geocoder, carrier
 from colorama import Fore, Style
 
-def check_url(url, site_name, headers):
+async def check_url(session, url, site_name, headers):
     try:
-        response = requests.get(url, headers=headers, timeout=5)
-        if response.status_code == 200:
-            return (site_name, url)
+        async with session.get(url, headers=headers, timeout=5) as response:
+            if response.status == 200:
+                return (site_name, url)
     except:
         return None
     return None
 
-def search_username(username):
-    print(f"{Fore.CYAN}[*] Searching for username: {username} (Massive Search - Multi-threaded){Style.RESET_ALL}")
+async def search_username(username):
+    print(f"{Fore.CYAN}[*] Searching for username: {username} (Massive Search - Async){Style.RESET_ALL}")
     
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     }
 
     sites = {
@@ -80,31 +80,32 @@ def search_username(username):
         "WordPress": f"https://{username}.wordpress.com",
     }
     
-    print(f"{Fore.YELLOW}[!] Scanning 50+ platforms with 20 parallel threads...{Style.RESET_ALL}")
-    found_count = 0
+    print(f"{Fore.YELLOW}[!] Scanning 50+ platforms...{Style.RESET_ALL}")
+    found_urls = {}
     
-    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-        future_to_site = {executor.submit(check_url, url, site, headers): site for site, url in sites.items()}
-        for future in concurrent.futures.as_completed(future_to_site):
-            result = future.result()
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        for site, url in sites.items():
+            tasks.append(check_url(session, url, site, headers))
+        
+        for future in asyncio.as_completed(tasks):
+            result = await future
             if result:
                 site_name, url = result
                 print(f"{Fore.GREEN}[+] Found on {site_name}: {url}{Style.RESET_ALL}")
-                found_count += 1
-            else:
-                # Progress indicator handled by the loop speed, kept clean
-                pass
+                found_urls[site_name] = url
                 
-    print(f"{Fore.BLUE}[*] Scan complete. Found {username} on {found_count} platforms.{Style.RESET_ALL}")
+    print(f"{Fore.BLUE}[*] Scan complete. Found {username} on {len(found_urls)} platforms.{Style.RESET_ALL}")
+    return found_urls
 
-def check_gravatar(email):
+async def check_gravatar(session, email):
     email = email.strip().lower()
     hash_email = hashlib.md5(email.encode('utf-8')).hexdigest()
     url = f"https://www.gravatar.com/avatar/{hash_email}?d=404"
     try:
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            return f"https://www.gravatar.com/avatar/{hash_email}"
+        async with session.get(url, timeout=5) as response:
+            if response.status == 200:
+                return f"https://www.gravatar.com/avatar/{hash_email}"
     except:
         pass
     return None
@@ -119,59 +120,75 @@ def generate_dorks(email):
         f"site:github.com \"{email}\""
     ]
 
-def search_email(email):
+async def search_email(email):
+    results = {'email': email, 'gravatar': None, 'dorks': []}
     print(f"{Fore.CYAN}[*] Searching for email: {email}{Style.RESET_ALL}")
     if "@" not in email or "." not in email:
         print(f"{Fore.RED}[!] Invalid email format.{Style.RESET_ALL}")
-        return
+        return results
 
     domain = email.split("@")[1]
     print(f"{Fore.YELLOW}[!] Analyzing domain: {domain}{Style.RESET_ALL}")
     
-    gravatar_url = check_gravatar(email)
-    if gravatar_url:
-        print(f"{Fore.GREEN}[+] Found Gravatar profile: {gravatar_url}{Style.RESET_ALL}")
-    else:
-        print(f"{Fore.YELLOW}[-] No Gravatar profile found.{Style.RESET_ALL}")
+    async with aiohttp.ClientSession() as session:
+        gravatar_url = await check_gravatar(session, email)
+        if gravatar_url:
+            print(f"{Fore.GREEN}[+] Found Gravatar profile: {gravatar_url}{Style.RESET_ALL}")
+            results['gravatar'] = gravatar_url
+        else:
+            print(f"{Fore.YELLOW}[-] No Gravatar profile found.{Style.RESET_ALL}")
 
     print(f"\n{Fore.CYAN}[*] Google Dorks for Manual Breach Search:{Style.RESET_ALL}")
     dorks = generate_dorks(email)
     for dork in dorks:
-        print(f"{Fore.BLUE}[~] Search: https://www.google.com/search?q={dork.replace(' ', '+').replace('\"', '%22')}{Style.RESET_ALL}")
+        encoded_dork = dork.replace(' ', '+').replace('"', '%22')
+        search_url = f"https://www.google.com/search?q={encoded_dork}"
+        print(f"{Fore.BLUE}[~] Search: {search_url}{Style.RESET_ALL}")
+        results['dorks'].append(search_url)
+    
+    return results
 
-def search_number(number):
+async def search_number(number):
+    results = {'number': number, 'valid': False}
     print(f"{Fore.CYAN}[*] Searching for phone number: {number}{Style.RESET_ALL}")
     try:
         parsed_number = phonenumbers.parse(number, None)
         if not phonenumbers.is_valid_number(parsed_number):
              print(f"{Fore.RED}[!] Number appears invalid.{Style.RESET_ALL}")
-             return
-
+             return results
+        
+        results['valid'] = True
         country = geocoder.description_for_number(parsed_number, "en")
+        results['country'] = country
         print(f"{Fore.GREEN}[+] Country: {country}{Style.RESET_ALL}")
         
         mobile_carrier = carrier.name_for_number(parsed_number, "en")
         if mobile_carrier:
+            results['carrier'] = mobile_carrier
             print(f"{Fore.GREEN}[+] Carrier: {mobile_carrier}{Style.RESET_ALL}")
              
         clean_number = str(parsed_number.country_code) + str(parsed_number.national_number)
+        results['global_format'] = clean_number
+        
         print(f"\n{Fore.CYAN}[*] Reverse Lookup Links:{Style.RESET_ALL}")
+        # Add links to results? Maybe overkill for now, but good for AI context
         print(f"{Fore.BLUE}[~] TrueCaller: https://www.truecaller.com/search/global/{clean_number}{Style.RESET_ALL}")
         print(f"{Fore.BLUE}[~] Sync.me: https://sync.me/search/{clean_number}{Style.RESET_ALL}")
         
+        return results
+        
     except Exception as e:
          print(f"{Fore.RED}[!] Error: {e}{Style.RESET_ALL}")
+         return results
 
-def reverse_image_search(image_url):
+async def reverse_image_search(image_url):
+    results = {'image_url': image_url}
     print(f"{Fore.CYAN}[*] Generating Reverse Image Search Links...{Style.RESET_ALL}")
     if not image_url.startswith('http'):
         print(f"{Fore.YELLOW}[!] Note: You entered a local path or invalid URL. Showing upload pages instead.{Style.RESET_ALL}")
         print(f"{Fore.BLUE}[~] Google Images (Click Camera Icon): https://images.google.com/{Style.RESET_ALL}")
-        print(f"{Fore.BLUE}[~] Yandex Images: https://yandex.com/images/{Style.RESET_ALL}")
-        print(f"{Fore.BLUE}[~] TinEye: https://tineye.com/{Style.RESET_ALL}")
-        print(f"{Fore.BLUE}[~] Bing Visual Search: https://www.bing.com/visualsearch{Style.RESET_ALL}")
     else:
         print(f"{Fore.GREEN}[+] Image URL detected. Click these links to search directly:{Style.RESET_ALL}")
         print(f"{Fore.BLUE}[~] Google: https://lens.google.com/uploadbyurl?url={image_url}{Style.RESET_ALL}")
-        print(f"{Fore.BLUE}[~] Yandex: https://yandex.com/images/search?rpt=imageview&url={image_url}{Style.RESET_ALL}")
-        print(f"{Fore.BLUE}[~] TinEye: https://tineye.com/search?url={image_url}{Style.RESET_ALL}")
+        # Just returning the input url for now as there's no data extraction here
+    return results

@@ -8,3 +8,8 @@ fake-useragent
 pillow
 pytesseract
 requests[socks]
+aiohttp
+aiofiles
+flask
+flask-cors
+aiohttp-socks

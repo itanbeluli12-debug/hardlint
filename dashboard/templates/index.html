@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardlint // Intelligence Graph</title>
+    <!-- Vis.js for Graph -->
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="overlay">
+        <div class="header">
+            <h1>HARDLINT <span style="color:red">V4</span> // RELATIONSHIP MAP</h1>
+            <div id="status">Connecting to Neural Net...</div>
+        </div>
+        
+        <div id="controls">
+            <button onclick="refreshData()">Sync Data</button>
+            <button onclick="togglePhysics()">Freeze Nodes</button>
+        </div>
+    </div>
+
+    <div id="mynetwork"></div>
+
+    <script src="/static/js/graph.js"></script>
+</body>
+</html>
