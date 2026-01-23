@@ -13,3 +13,5 @@ aiofiles
 flask
 flask-cors
 aiohttp-socks
+python-dotenv
+pyngrok

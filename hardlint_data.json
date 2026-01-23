@@ -1,18 +1,16 @@
 {
-    "usernames": {},
-    "emails": {
-        "bootydevils1@gmail.com": {
-            "email": "bootydevils1@gmail.com",
-            "gravatar": null,
-            "dorks": [
-                "https://www.google.com/search?q=site:pastebin.com+%22bootydevils1@gmail.com%22",
-                "https://www.google.com/search?q=site:linkedin.com+%22bootydevils1@gmail.com%22",
-                "https://www.google.com/search?q=intext:%22bootydevils1@gmail.com%22+filetype:txt",
-                "https://www.google.com/search?q=intext:%22bootydevils1@gmail.com%22+(password+|+pass+|+pwd)",
-                "https://www.google.com/search?q=site:github.com+%22bootydevils1@gmail.com%22"
-            ]
+    "usernames": {
+        "itano_edit12": {
+            "Spotify": "https://open.spotify.com/user/itano_edit12",
+            "Giphy": "https://giphy.com/itano_edit12",
+            "DailyMotion": "https://www.dailymotion.com/itano_edit12",
+            "Twitch": "https://www.twitch.tv/itano_edit12",
+            "Telegram": "https://t.me/itano_edit12",
+            "HackerNews": "https://news.ycombinator.com/user?id=itano_edit12",
+            "Instagram": "https://www.instagram.com/itano_edit12/"
         }
     },
+    "emails": {},
     "phones": {},
     "images": [],
     "crypto": [],

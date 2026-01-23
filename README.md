@@ -1,75 +1,98 @@
-# HARDLINT V4 (INTELLIGENCE EDITION) 🕵️‍♂️🧠🕸️
+# HARDLINT V4 - Intelligence Edition 🕵️‍♂️🧠🕸️
 
-**HARDLINT** is an advanced, high-performance asynchronous OSINT framework. Version 4 transforms it into a full-scale intelligence platform with AI-driven analysis, interactive visualization, and an anonymity layer.
-
-## 🌟 New V4 "Intelligence" Features
-
-### 🧠 AI Dossier Analyst
-- **Automated Reporting**: Synthesizes all gathered intelligence into a professional report.
-- **Privacy First**: Defaults to **Ollama** (Local LLM) for secure, offline analysis.
-- **Command**: Type `analyze` in the shell.
-
-### 🕸️ Interactive Relationship Map (Graph UI)
-- **Visual Investigation**: A web-based dashboard showing connections between aliases, emails, and data points.
-- **Real-time Sync**: Updates automatically as you run searches.
-- **Command**: Type `dashboard` and visit `http://localhost:5000`.
-
-### 👻 Ghost Mode (Advanced Anonymity)
-- **Tor Routing**: All outgoing requests are optionally routed through the Tor network.
-- **Identity Obfuscation**: Randomizes User-Agents for every request to prevent fingerprinting.
-- **Command**: Type `ghost` to toggle.
-
-### 📜 Page-based History Navigation
-- **State Persistence**: Navigate between previous search results using browser-like history commands.
-- **Commands**: Type `back` or `next`.
-
-### ⚡ Async Core
-- **Performance**: High-speed parallel scanning of 100+ platforms using `aiohttp`.
+> [!IMPORTANT]
+> **Hardlint** is a professional-grade asynchronous OSINT framework designed for ethical security researchers and intelligence analysts. V4 "Intelligence" transforms the tool into a full-scale analysis platform.
 
 ---
 
-## 🚀 Installation
+## 🌟 Advanced Intelligence Features
 
-1. **System Requirements:**
-   - **Tor**: Required for Dark Web & Ghost Mode (`sudo apt install tor` -> `sudo service tor start`).
-   - **Tesseract**: Required for OCR (`sudo apt install tesseract-ocr`).
+### 🧠 AI Dossier Analyst
+Synthesize raw data into actionable intelligence. Hardlint leverages local LLMs (via **Ollama**) to generate professional reports without compromising data privacy.
+- **Command**: `analyze` - Generates a structured dossier from the current session.
 
-2. **Setup (Virtual Environment):**
+### 🕸️ Interactive Investigation Dashboard
+Visualize connections between entities using a real-time Graph UI. 
+- **Command**: `dashboard`
+- **Interface**: `http://localhost:5000`
+
+### 👻 Ghost Mode & Anonymity
+Stay hidden during investigations with multi-layered anonymity.
+- **Tor Routing**: Optional SOCKS5 proxying for all modules.
+- **Fingerprint Rotation**: Dynamic User-Agent randomization.
+- **VPN Integration**: Native support for Mullvad VPN CLI.
+- **Command**: `ghost` (Tor) / `vpn` (Mullvad)
+
+---
+
+## 🛠️ Modules & Capabilities
+
+| category | Module | Syntax | Description |
+| :--- | :--- | :--- | :--- |
+| **Identity** | `username` | `search <<username "name"` | Scan 100+ social platforms. |
+| | `email` | `search <<email "addr"` | Breach check & deep dorks. |
+| | `number` | `search <<number "phone"` | Reverse phone lookup. |
+| **Forensics** | `exif` | `search <<exif "url"` | Metadata & GPS extraction. |
+| | `ocr` | `search <<ocr "url"` | Text recognition in images. |
+| | `image` | `search <<image "url"` | Reverse image search links. |
+| **Network** | `ip` | `search <<ip "addr"` | Geolocation & Threat Intel. |
+| | `scan` | `search <<scan "target"` | Active Port Scanner. |
+| | `wifi` | `search <<wifi "bssid"` | BSSID geolocation. |
+| **Web** | `domain` | `search <<domain "site"` | DNS, WHOIS, Subdomains. |
+| | `darkweb` | `search <<darkweb "query"`| Search Onion sites via Tor. |
+| | `leak` | `search <<leak "query"` | Pastebin & breach lookup. |
+| **Assets** | `crypto` | `search <<crypto "addr"`| Blockchain wallet analysis. |
+| | `vin` | `search <<vin "vin"` | Vehicle VIN decoder. |
+| **Red Team** | `phishing` | `launch <template>` | Start Social Engineering sim. |
+
+---
+
+## 🚀 Installation & Setup
+
+1. **System Dependencies**:
+   ```bash
+   # Debian/Ubuntu
+   sudo apt install tor tesseract-ocr mullvad-vpn
+   sudo service tor start
+   ```
+
+2. **Environment Setup**:
    ```bash
    python3 -m venv venv
-   ./venv/bin/pip install -r requirements.txt
+   source venv/bin/activate
+   pip install -r requirements.txt
    ```
 
-3. **Run:**
+3. **Execution**:
    ```bash
-   ./venv/bin/python hardlint.py
+   python hardlint.py
    ```
 
-## 📖 Command Reference
+---
 
-| Category | Command | Description |
-| :--- | :--- | :--- |
-| **Intelligence** | `analyze` | Generate AI Dossier. |
-| | `dashboard` | Launch Web Graph UI. |
-| | `show_data` | Review collected session data. |
-| **Anonymity** | `ghost` | Toggle Tor Proxy + Random UA. |
-| **Dark Web** | `search <<darkweb "query"` | Search Onion sites (Ahmia). |
-| **Social** | `search <<username "name"`| High-speed 100+ site lookup. |
-| | `search <<email "addr"` | Gravatar & Deep Dorks. |
-| | `search <<number "phone"` | Reverse phone lookup. |
-| **Network** | `search <<ip "addr"` | Geolocation & Threat intel. |
-| | `search <<mac "addr"` | MAC Vendor lookup. |
-| | `search <<scan "target"` | Active Port Scanner. |
-| | `search <<wifi "bssid"` | Geolocation via BSSID. |
-| **Media** | `search <<exif "url"` | Metadata/GPS extraction. |
-| | `search <<ocr "url"` | Text recognition in images. |
-| | `search <<image "url"` | Reverse image search links. |
-| **Assets** | `search <<domain "site"` | WHOIS, DNS, & Subdomains. |
-| | `search <<crypto "addr"` | Crypto wallet analysis. |
-| | `search <<vin "vin"` | Vehicle VIN decoder. |
-| | `search <<leak "query"` | Pastebin & Leak lookup. |
-| **Interface** | `back` / `next` | History navigation. |
-| | `clear` | Clear terminal screen. |
+## ⚖️ Legal & Ethical Disclaimer
 
-## 🛡️ Privacy & Ethics
-Usage for **educational purposes only**. Always ensure you have appropriate authorization before performing active scans.
+> [!CAUTION]
+> **READ CAREFULLY BEFORE USE.**
+
+This tool is provided for **educational and authorized security testing purposes only**. The developers of Hardlint assume no liability for any misuse or damage caused by this program.
+
+### 1. Authorized Use
+You may only use Hardlint on systems and entities for which you have explicit, written permission. Unauthorized use against third-party systems is illegal and unethical.
+
+### 2. Regulatory Compliance
+Users are responsible for complying with all local, national, and international laws, including but not limited to:
+- **GDPR / CCPA**: Handling of Personal Identifiable Information (PII).
+- **Computer Misuse Act**: Unauthorized access to computer material.
+- **CFAA**: Computer Fraud and Abuse Act.
+
+### 3. Ethical Boundaries
+- Never use this tool for stalking, harassment, or malicious doxing.
+- Respect the privacy of individuals.
+- Use the gathered data responsibly.
+
+### 4. No Warranty
+This software is provided "as is", without warranty of any kind, express or implied. Use at your own risk.
+
+---
+*Developed by **mrhardlint** | [GitHub Repository](https://github.com/mrhardlint/hardlint)*
